@@ -1,9 +1,20 @@
 
+import { db } from '../db';
+import { galleryImagesTable } from '../db/schema';
 import { type GalleryImage } from '../schema';
+import { eq, asc } from 'drizzle-orm';
 
-export async function getFeaturedGalleryImages(): Promise<GalleryImage[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching only featured gallery images.
-    // Should return images where is_featured = true, ordered by display_order.
-    return [];
-}
+export const getFeaturedGalleryImages = async (): Promise<GalleryImage[]> => {
+  try {
+    const results = await db.select()
+      .from(galleryImagesTable)
+      .where(eq(galleryImagesTable.is_featured, true))
+      .orderBy(asc(galleryImagesTable.display_order))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch featured gallery images:', error);
+    throw error;
+  }
+};

@@ -1,7 +1,18 @@
 
+import { db } from '../db';
+import { antiqueItemsTable } from '../db/schema';
+import { eq } from 'drizzle-orm';
+
 export async function deleteAntiqueItem(id: number): Promise<boolean> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting an antique item from the database by ID.
-    // Should return true if successfully deleted, false if item not found.
-    return false;
+  try {
+    const result = await db.delete(antiqueItemsTable)
+      .where(eq(antiqueItemsTable.id, id))
+      .execute();
+
+    // Check if any rows were affected (deleted)
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Delete antique item failed:', error);
+    throw error;
+  }
 }

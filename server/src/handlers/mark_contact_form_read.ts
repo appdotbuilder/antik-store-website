@@ -1,9 +1,28 @@
 
+import { db } from '../db';
+import { contactFormsTable } from '../db/schema';
 import { type ContactForm } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export async function markContactFormRead(id: number): Promise<ContactForm | null> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is marking a contact form submission as read.
-    // Should update is_read to true and return the updated form, or null if not found.
-    return null;
+  try {
+    // Update the contact form to mark as read
+    const result = await db.update(contactFormsTable)
+      .set({
+        is_read: true
+      })
+      .where(eq(contactFormsTable.id, id))
+      .returning()
+      .execute();
+
+    // Return the updated contact form or null if not found
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Mark contact form read failed:', error);
+    throw error;
+  }
 }

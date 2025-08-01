@@ -1,7 +1,18 @@
 
+import { db } from '../db';
+import { pageContentTable } from '../db/schema';
+import { eq } from 'drizzle-orm';
+
 export async function deletePageContent(id: number): Promise<boolean> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting page content from the CMS by ID.
-    // Should return true if successfully deleted, false if page not found.
-    return false;
+  try {
+    const result = await db.delete(pageContentTable)
+      .where(eq(pageContentTable.id, id))
+      .returning()
+      .execute();
+
+    return result.length > 0;
+  } catch (error) {
+    console.error('Page content deletion failed:', error);
+    throw error;
+  }
 }

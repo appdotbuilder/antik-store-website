@@ -1,24 +1,36 @@
 
+import { db } from '../db';
+import { antiqueItemsTable } from '../db/schema';
 import { type CreateAntiqueItemInput, type AntiqueItem } from '../schema';
 
-export async function createAntiqueItem(input: CreateAntiqueItemInput): Promise<AntiqueItem> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new antique item and persisting it in the database.
-    // Should validate the input, insert into antique_items table, and return the created item.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+export const createAntiqueItem = async (input: CreateAntiqueItemInput): Promise<AntiqueItem> => {
+  try {
+    // Insert antique item record
+    const result = await db.insert(antiqueItemsTable)
+      .values({
         name: input.name,
         description: input.description,
         year: input.year,
         origin: input.origin,
-        price: input.price,
+        price: input.price.toString(), // Convert number to string for numeric column
         availability_status: input.availability_status,
         category: input.category,
         condition: input.condition,
         dimensions: input.dimensions,
         material: input.material,
-        main_image_url: input.main_image_url,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as AntiqueItem);
-}
+        main_image_url: input.main_image_url
+      })
+      .returning()
+      .execute();
+
+    // Convert numeric fields back to numbers before returning
+    const antiqueItem = result[0];
+    return {
+      ...antiqueItem,
+      price: parseFloat(antiqueItem.price) // Convert string back to number
+    };
+  } catch (error) {
+    console.error('Antique item creation failed:', error);
+    throw error;
+  }
+};

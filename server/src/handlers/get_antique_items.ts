@@ -1,9 +1,23 @@
 
+import { db } from '../db';
+import { antiqueItemsTable } from '../db/schema';
 import { type AntiqueItem } from '../schema';
+import { desc } from 'drizzle-orm';
 
-export async function getAntiqueItems(): Promise<AntiqueItem[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all antique items from the database.
-    // Should return all items with proper ordering (e.g., by created_at desc).
-    return [];
-}
+export const getAntiqueItems = async (): Promise<AntiqueItem[]> => {
+  try {
+    const results = await db.select()
+      .from(antiqueItemsTable)
+      .orderBy(desc(antiqueItemsTable.created_at))
+      .execute();
+
+    // Convert numeric fields back to numbers before returning
+    return results.map(item => ({
+      ...item,
+      price: parseFloat(item.price)
+    }));
+  } catch (error) {
+    console.error('Failed to fetch antique items:', error);
+    throw error;
+  }
+};

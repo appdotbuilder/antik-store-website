@@ -1,9 +1,19 @@
 
+import { db } from '../db';
+import { pageContentTable } from '../db/schema';
 import { type PageContent } from '../schema';
+import { desc } from 'drizzle-orm';
 
-export async function getAllPageContent(): Promise<PageContent[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all page content for admin panel.
-    // Should return all pages (published and unpublished) for CMS management.
-    return [];
-}
+export const getAllPageContent = async (): Promise<PageContent[]> => {
+  try {
+    const results = await db.select()
+      .from(pageContentTable)
+      .orderBy(desc(pageContentTable.updated_at))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch all page content:', error);
+    throw error;
+  }
+};
